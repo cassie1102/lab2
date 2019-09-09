@@ -20,6 +20,7 @@ Load `rjson` with
 
 ```{r}
 library(rjson)
+library(tidyverse)
 ```
 
 # U.S. senators
@@ -39,16 +40,41 @@ senators <- fromJSON(paste(readLines(json_file), collapse = ""))
 
 #### Task 1
 
-Print the structure for the first senator, Lamar Alexander, in the list.
+Print the structure for the first senator, Lamar Alexander, in the list. 
+```{r}
+str(senators$object[[1]])
+senators$objects[[1]]$person$birthday
+```
 
 #### Task 2
 
-Extract the birthday for each North Carolina senator.
+Extract the birthday for each North Carolina senator. 
+```{r}
+birth.state <- data.frame(rep(0, length(senators$objects)), rep(0, length(senators$objects), stringsAsFactors = FALSE))
+colnames(birth.state) <- c("state", "birthday")
+for (i in 1:length(senators$objects)){
+  birth.state[i, 1] = senators$objects[[i]]$state
+  birth.state[i, 2] = senators$objects[[i]]$person$birthday
+}
+birth.state$birthday[birth.state$state == "NC"]
+```
+
 
 #### Task 3
 
 Write a loop that prints the twitter ID for each senator in the leadership, i.e.
-where `leadership_title` is not null.
+where `leadership_title` is not null. 
+```{r}
+leader.twitter <- data.frame(matrix(nrow = 1, ncol = 2))
+colnames(leader.twitter) <- c("leadership", "twitter ID")
+for(i in 1:length(senators$objects)){
+  if(is.null(senators$objects[[i]]) == F){
+    leader.senator <- c(senators$objects[[i]]$leadership_title, senators$objects[[i]]$person$twitterid)
+    leader.twitter <- rbind(leader.twitter, leader.senator)
+  }
+}
+```
+
 
 # Command line
 
